@@ -1,6 +1,6 @@
 import { Red, NodeProperties, Node as NRNode } from 'node-red';
 import { Node } from 'node-red-contrib-typescript-node';
-import { API, APIObject } from 'overkiz-api';
+import { API, APIObject, DefaultLoginHandler } from 'overkiz-api';
 import { Application } from 'express';
 import { CookieJar } from 'request';
 
@@ -49,8 +49,7 @@ module.exports = function (RED: Red) {
       this.host = config.host;
       this.overkizApi = new API({
         host: this.host,
-        user: this.credentials.username,
-        password: this.credentials.password,
+        platformLoginHandler: new DefaultLoginHandler(this.credentials.username, this.credentials.password),
         polling: {
           always: false,
           interval: 1000
