@@ -1,6 +1,6 @@
 import { Red, NodeProperties, Node as NRNode } from 'node-red';
 import { Node } from 'node-red-contrib-typescript-node';
-import { API, APIObject, DefaultLoginHandler } from 'overkiz-api';
+import { API, APIObject, PlatformLoginHandler, CozytouchLoginHandler, DefaultLoginHandler } from 'overkiz-api';
 import { Application } from 'express';
 import { CookieJar } from 'request';
 
@@ -11,6 +11,7 @@ export interface IOverkizGateway extends NRNode {
 
 interface IGatewayNodeProperties extends NodeProperties {
   host: string;
+  loginHandler: string;
 };
 
 interface ICredentials {
@@ -41,15 +42,27 @@ module.exports = function (RED: Red) {
     private host: string;
     private credentials: ICredentials;
     private overkizApi: API;
+    private loginHandler: PlatformLoginHandler;
 
     constructor(config: IGatewayNodeProperties) {
       super(RED);
 
       this.createNode(config);
       this.host = config.host;
+
+      switch (config.loginHandler?.toLowerCase()) {
+        case 'cozytouch':
+          this.loginHandler = new CozytouchLoginHandler(this.credentials.username, this.credentials.password);
+          break;
+
+        default:
+          this.loginHandler = new DefaultLoginHandler(this.credentials.username, this.credentials.password);
+          break;
+      }
+
       this.overkizApi = new API({
         host: this.host,
-        platformLoginHandler: new DefaultLoginHandler(this.credentials.username, this.credentials.password),
+        platformLoginHandler: this.loginHandler,
         polling: {
           always: false,
           interval: 1000

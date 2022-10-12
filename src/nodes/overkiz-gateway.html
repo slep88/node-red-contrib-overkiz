@@ -3,7 +3,8 @@
     category: 'config',
     defaults: {
       name: { value: '' },
-      host: { value: '', required: true }
+      host: { value: '', required: true },
+      loginHandler: { value: '' }
     },
     credentials: {
       username: { type: 'text', required: true },
@@ -11,6 +12,29 @@
     },
     label: function () {
       return this.name || 'overkiz-gateway';
+    },
+    oneditprepare: function generateEditForm() {
+
+      const loginHandlers = [
+        {
+          name: 'Default',
+          option: 'default'
+        },
+        {
+          name: 'Cozytouch',
+          option: 'cozytouch'
+        }];
+
+      const selectedLoginHandler = this.loginHandler || loginHandlers[0].option;
+
+      $('#node-config-input-loginHandler').replaceWith('<select id="node-config-input-loginHandler" name="node-config-input-loginHandler" style="width: 70%;">');
+
+      var html = "";
+      $.each(loginHandlers, function (index, value) {
+        html += '<option value="' + value.option + '">' + value.name + '</option>';
+      });
+
+      $('#node-config-input-loginHandler').empty().html(html).val(selectedLoginHandler);
     }
   });
 </script>
@@ -23,6 +47,10 @@
   <div class="form-row">
     <label for="node-config-input-host"><i class="icon-tag"></i> Host</label>
     <input type="text" id="node-config-input-host" placeholder="E.g. tahomalink.com">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-loginHandler"><i class="icon-tag"></i> Login Handler</label>
+    <input type="text" id="node-config-input-loginHandler">
   </div>
   <div class="form-row">
     <label for="node-config-input-username"><i class="icon-tag"></i> Username</label>
